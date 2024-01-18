@@ -16,15 +16,7 @@
 
 package com.huawei.hms.flutter.health.modules.activityrecord.utils;
 
-import static com.huawei.hms.flutter.health.foundation.constants.Constants.ACTIVITY_TYPE_KEY;
-import static com.huawei.hms.flutter.health.foundation.constants.Constants.DESCRIPTION_KEY;
-import static com.huawei.hms.flutter.health.foundation.constants.Constants.ID_KEY;
-import static com.huawei.hms.flutter.health.foundation.constants.Constants.NAME_KEY;
-import static com.huawei.hms.flutter.health.modules.activityrecord.utils.ActivityRecordsConstants.ACTIVITY_SUMMARY_KEY;
-import static com.huawei.hms.flutter.health.modules.activityrecord.utils.ActivityRecordsConstants.PACKAGE_NAME;
-
 import androidx.annotation.Nullable;
-
 import com.huawei.hms.flutter.health.foundation.constants.Constants;
 import com.huawei.hms.flutter.health.foundation.utils.Utils;
 import com.huawei.hms.flutter.health.modules.healthcontroller.HealthRecordUtils;
@@ -44,15 +36,20 @@ import com.huawei.hms.hihealth.data.Value;
 import com.huawei.hms.hihealth.options.ActivityRecordDeleteOptions;
 import com.huawei.hms.hihealth.options.ActivityRecordReadOptions;
 import com.huawei.hms.hihealth.result.ActivityRecordReply;
-
 import io.flutter.plugin.common.MethodCall;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
+
+import static com.huawei.hms.flutter.health.foundation.constants.Constants.ACTIVITY_TYPE_KEY;
+import static com.huawei.hms.flutter.health.foundation.constants.Constants.DESCRIPTION_KEY;
+import static com.huawei.hms.flutter.health.foundation.constants.Constants.ID_KEY;
+import static com.huawei.hms.flutter.health.foundation.constants.Constants.NAME_KEY;
+import static com.huawei.hms.flutter.health.modules.activityrecord.utils.ActivityRecordsConstants.ACTIVITY_SUMMARY_KEY;
+import static com.huawei.hms.flutter.health.modules.activityrecord.utils.ActivityRecordsConstants.PACKAGE_NAME;
 
 public final class ActivityRecordUtils {
     /**
@@ -247,28 +244,32 @@ public final class ActivityRecordUtils {
         HashMap<String, Object> resultMap = new HashMap<>();
         for (Entry<String, Value> pair : fieldValue.entrySet()) {
             Value value = pair.getValue();
-            switch (value.getFormat()) {
-                case Field.FORMAT_INT32:
-                    resultMap.put(pair.getKey(), value.asIntValue());
-                    break;
-                case Field.FORMAT_FLOAT:
-                    resultMap.put(pair.getKey(), value.asDoubleValue());
-                    break;
-                case Field.FORMAT_STRING:
-                    resultMap.put(pair.getKey(), value.asStringValue());
-                    break;
-                case Field.FORMAT_MAP:
-                    HashMap<String, MapValue> floatMap = new HashMap<>();
-                    for (String key : value.getMap().keySet()) {
-                        floatMap.put(key, value.getMapValue(key));
-                    }
-                    resultMap.put(pair.getKey(), floatMap);
-                    break;
-                case Field.FORMAT_LONG:
-                    resultMap.put(pair.getKey(), (int) (value).asLongValue());
-                    break;
-                default:
-                    throw new IllegalStateException("Unexpected value: " + value.getFormat());
+            if (!value.isSet()) {
+                resultMap.put(pair.getKey(), null);
+            } else {
+                switch (value.getFormat()) {
+                    case Field.FORMAT_INT32:
+                        resultMap.put(pair.getKey(), value.asIntValue());
+                        break;
+                    case Field.FORMAT_FLOAT:
+                        resultMap.put(pair.getKey(), value.asDoubleValue());
+                        break;
+                    case Field.FORMAT_STRING:
+                        resultMap.put(pair.getKey(), value.asStringValue());
+                        break;
+                    case Field.FORMAT_MAP:
+                        HashMap<String, MapValue> floatMap = new HashMap<>();
+                        for (String key : value.getMap().keySet()) {
+                            floatMap.put(key, value.getMapValue(key));
+                        }
+                        resultMap.put(pair.getKey(), floatMap);
+                        break;
+                    case Field.FORMAT_LONG:
+                        resultMap.put(pair.getKey(), value.asLongValue());
+                        break;
+                    default:
+                        throw new IllegalStateException("Unexpected value: " + value.getFormat());
+                }
             }
         }
         return resultMap;
@@ -338,7 +339,7 @@ public final class ActivityRecordUtils {
     }
 
     public static synchronized List<Map<String, Object>> listSampleSetToMap(
-            final List<SampleSet> sampleSets) {
+        final List<SampleSet> sampleSets) {
         ArrayList<Map<String, Object>> resultList = new ArrayList<>();
         for (SampleSet sampleSet : sampleSets) {
             resultList.add(sampleSetToMap(sampleSet));
@@ -360,11 +361,11 @@ public final class ActivityRecordUtils {
 
     public static synchronized Map<String, Object> scopeLangItemToMap(final ScopeLangItem scopeLangItem) {
         HashMap<String, Object> resultMap = new HashMap<>();
-        if (scopeLangItem != null){
-        resultMap.put("appName", scopeLangItem.getAppName());
-        resultMap.put("appIconPath", scopeLangItem.getAppIconPath());
-        resultMap.put("authTime", scopeLangItem.getAuthTime());
-        resultMap.put("url2Desc", scopeLangItem.getUrl2Desc());
+        if (scopeLangItem != null) {
+            resultMap.put("appName", scopeLangItem.getAppName());
+            resultMap.put("appIconPath", scopeLangItem.getAppIconPath());
+            resultMap.put("authTime", scopeLangItem.getAuthTime());
+            resultMap.put("url2Desc", scopeLangItem.getUrl2Desc());
         }
         return resultMap;
     }
